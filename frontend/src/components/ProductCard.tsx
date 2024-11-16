@@ -11,6 +11,8 @@ import { votingAddress } from '@/config/wagmiConfig'
 import votingAbi from '../abi/Voting.json'
 import { useBlockNumber, useChainId } from 'wagmi'
 import { useEthersProvider, useEthersSigner } from '@/utils/viemEthersConverters'
+import { Dialog, DialogTrigger } from '@radix-ui/react-dialog'
+import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog'
 
 interface Product {
   id: number
