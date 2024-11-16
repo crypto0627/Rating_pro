@@ -8,10 +8,10 @@ import ProductCard from '../components/ProductCard'
 import Navbar from '@/components/Navbar'
 
 const products = [
-  { id: 1, name: 'Smart Watch', price: 100, rating: 4.5, image: '/smart_watch.jpeg' },
-  { id: 2, name: 'Wireless Earbuds', price: 9, rating: 4.2, image: '/earbuds.jpeg' },
-  { id: 3, name: 'Laptop', price: 999, rating: 4.8, image: '/laptop.jpeg' },
-  { id: 4, name: 'Smart Speaker', price: 49, rating: 3.9, image: '/smart_speaker.jpeg' },
+  { id: 0, name: 'Smart Watch', price: 100, rating: 4.5, image: '/smart_watch.jpeg' },
+  { id: 1, name: 'Wireless Earbuds', price: 9, rating: 4.2, image: '/earbuds.jpeg' },
+  { id: 2, name: 'Laptop', price: 999, rating: 4.8, image: '/laptop.jpeg' },
+  { id: 3, name: 'Smart Speaker', price: 49, rating: 3.9, image: '/smart_speaker.jpeg' },
 ]
 
 //// START OF THE COMPONENT ////

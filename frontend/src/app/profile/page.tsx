@@ -88,6 +88,7 @@ export default function ProfilePage() {
   const [weight, setWeight] = useState("");
   const [fheClient, setFheClient] = useState(null);
   const [quantity, setQuantity] = useState(0);
+  const allWeight = 257;
   // Can we get a provider and signer please?
   const signer = useEthersSigner();
   // console.log('Signer:', signer)
@@ -148,6 +149,10 @@ export default function ProfilePage() {
       .connect(signer)
       .changeVote(encryptedVote, encryptedWeight);
   };
+  const starData = [5, 4, 3, 2, 1];
+  const randomValues = starData.map(() => Math.random());
+  const total = randomValues.reduce((acc, val) => acc + val, 0);
+  const normalizedValues = randomValues.map((val) => (val / total) * 100);
 
   return (
     <div className="container mx-auto p-4">
@@ -155,7 +160,7 @@ export default function ProfilePage() {
       <Card className="mb-8">
         <CardHeader className="flex flex-row items-center gap-4">
           <Avatar className="w-20 h-20">
-            <AvatarImage src={user.avatar} alt={user.name} />
+            <AvatarImage alt={user.name} />
             <AvatarFallback>
               {user.name
                 .split(" ")
@@ -197,15 +202,15 @@ export default function ProfilePage() {
               <CardTitle>Rating Distribution</CardTitle>
             </CardHeader>
             <CardContent>
-              {[5, 4, 3, 2, 1].map((star) => (
+              {starData.map((star, index) => (
                 <div key={star} className="flex items-center mb-2">
                   <span className="w-8 text-sm">{star} star</span>
                   <Progress
-                    value={Math.random() * 100}
+                    value={normalizedValues[index]}
                     className="w-full mx-2"
                   />
                   <span className="w-8 text-sm text-right">
-                    {Math.floor(Math.random() * 100)}%
+                    {normalizedValues[index].toFixed(1)}%
                   </span>
                 </div>
               ))}
@@ -232,13 +237,73 @@ export default function ProfilePage() {
                     initialRating={review.rating}
                     readOnly
                   />
-                  <p className="mt-2 text-sm">{review.comment}</p>
-                  <p className="mt-2 text-sm">Weight: {review.weight}</p>
-                  <div className="flex justify-between items-center mt-2">
-                    <p className="text-sm">Average Vote:</p>
+                  <p className="mt-2 text-sm">{review.comment} </p>
+                  <p className="mt-2 text-sm">
+                    Weight: {review.weight} of {allWeight}
+                  </p>
+                  <div className="flex justify-between items-center mt-2 gap-2">
+                    <Dialog>
+                      <DialogTrigger>
+                        <Button className="ml-auto">Add</Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Rate {review.productName}</DialogTitle>
+                          <DialogDescription>
+                            Please provide your rating and feedback for this
+                            Store
+                          </DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                          <div className="space-y-2">
+                            <label
+                              htmlFor="quantity"
+                              className="text-sm font-medium text-gray-700"
+                            >
+                              Change Weight
+                            </label>
+                            <Input
+                              type="number"
+                              id="quantity"
+                              value={quantity}
+                              onChange={(e) =>
+                                setQuantity(parseInt(e.target.value))
+                              }
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label
+                              htmlFor="rating"
+                              className="text-sm font-medium text-gray-700"
+                            >
+                              Your Rating
+                            </label>
+                            <RatingComponent onChange={setRating} />
+                          </div>
+                          <div className="space-y-2">
+                            <label
+                              htmlFor="comment"
+                              className="text-sm font-medium text-gray-700"
+                            >
+                              Your Review
+                            </label>
+                            <Textarea
+                              id="comment"
+                              value={comment}
+                              onChange={(e) => setComment(e.target.value)}
+                              placeholder="Please share your experience..."
+                              className="w-full"
+                            />
+                          </div>
+                          <Button type="submit" className="w-full">
+                            Submit Rating
+                          </Button>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button className="">Rate</Button>
+                        <Button className="mr-auto">Change</Button>
                       </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>

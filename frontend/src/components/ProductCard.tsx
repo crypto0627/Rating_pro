@@ -40,11 +40,8 @@ export default function ProductCard({ product }: { product: Product }) {
     e.preventDefault()
     console.log('Submitted quantity:', quantity)
     console.log('Submitted comment:', comment)
-    console.log('Rated product ID:', product.id)
-    // const encryptedVote = await encrypt(selectedOption)
-    // console.log(encryptedVote);
     //call the purchaseProduct function with sending ether
-    await votingContract.connect(signer).purchaseProduct(0, quantity, { value: quantity * product.price })
+    await votingContract.connect(signer).purchaseProduct(product.id, quantity, { value: quantity * product.price })
   }
 
   return (
