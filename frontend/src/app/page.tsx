@@ -114,46 +114,6 @@ export default function LandingPage() {
     fetchFinalized()
   }, [finalizedClicked])
 
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    if (selectedOption === null) {
-      alert('Please select an option before submitting.')
-      return
-    }
-    console.log('Selected Option:', selectedOption)
-
-    // console.log("Encrypted vote:")
-    const encryptedVote = await encrypt(selectedOption)
-    console.log(encryptedVote);
-
-    // subtmit the vote using vote(bytes) function
-    console.log('Submitting vote...')
-    console.log('Voting contract:', votingContract)
-    console.log('Signer:', signer)
-    console.log('Encrypted vote:', encryptedVote)
-    await votingContract.connect(signer).vote(encryptedVote)
-
-    // Set the submitted state to true
-    setIsSubmitted(true)
-  }
-
-  const handleFinalizeVoting = async () => {
-    // Add the logic to finalize the voting process
-    console.log('Finalize Voting button clicked')
-    // await votingContract.connect(signer).finalize();
-
-    try {
-      const tx = await votingContract.connect(signer).finalize()
-      await tx.wait()
-      console.log('Voting finalized:', tx)
-    } catch (error) {
-      console.error('Error finalizing voting:', error)
-    } finally {
-      console.log('Finalize voting completed')
-      setFinalizedClicked(true)
-      fetchWinningValues()
-    }
-  }
 
   const fetchWinningValues = async () => {
     try {
@@ -164,10 +124,6 @@ export default function LandingPage() {
       console.error('Error fetching winning values:', error)
     }
   }
-
-  // TODO fetch voting options
-  // These can be fetched from the contract as well, but for simplicity and time limits, we are hardcoding them here
-  const options = ['Patrick Star', 'Sandy Cheeks', 'Mr. Krabs']
 
   return (
       <main className='flex flex-col '>

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { RatingComponent } from '../../components/RatingComponent'
 import { Button } from "../../components/ui/button"
@@ -15,7 +14,6 @@ import Navbar from '@/components/Navbar'
 const user = {
   name: "Alice Johnson",
   email: "alice@example.com",
-  avatar: "/placeholder.svg?height=100&width=100",
   overallRating: 4.2,
   totalReviews: 15
 }

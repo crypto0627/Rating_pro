@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: 'FHE Voting',
   description: 'FHE Voting Description Example',
   robots: 'index, follow',
+  icons: {
+    icon: '/favicon.ico'
+  }
 }
 
 export default function RootLayout({

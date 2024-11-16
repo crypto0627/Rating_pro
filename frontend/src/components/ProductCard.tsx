@@ -6,7 +6,6 @@ import { Button } from "./ui/button"
 import { Textarea } from "./ui/textarea"
 import { Input } from "./ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "./ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
 import { ethers } from 'ethers'
 import { votingAddress } from '@/config/wagmiConfig'
 import votingAbi from '../abi/Voting.json'
