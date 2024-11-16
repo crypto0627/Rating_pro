@@ -7,6 +7,11 @@ import { Button } from "./ui/button"
 import { Textarea } from "./ui/textarea"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "./ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
+import { ethers } from 'ethers'
+import { votingAddress } from '@/config/wagmiConfig'
+import votingAbi from '../abi/Voting.json'
+import { useBlockNumber, useChainId } from 'wagmi'
+import { useEthersProvider, useEthersSigner } from '@/utils/viemEthersConverters'
 
 interface Product {
   id: number
@@ -20,14 +25,28 @@ export default function ProductCard({ product }: { product: Product }) {
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { data: blockNumberData } = useBlockNumber({ watch: true })
+  const chainId = useChainId()
+
+  // Can we get a provider and signer please?
+  const signer = useEthersSigner()
+  // console.log('Signer:', signer)
+  const provider = useEthersProvider()
+  // console.log('Provider:', provider)
+
+  // Create a contract instance
+  const votingContract = new ethers.Contract(votingAddress, votingAbi['abi'], provider)
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     console.log('Submitted rating:', rating)
     console.log('Submitted comment:', comment)
     console.log('Rated product ID:', product.id)
-    // Handle rating submission logic here
-    setRating(0)
-    setComment('')
+    setRating(rating)
+    setComment(comment)
+    const encryptedVote = await encrypt(selectedOption)
+    console.log(encryptedVote);
+    await votingContract.connect(signer).vote(encryptedVote)
   }
 
   return (
@@ -87,4 +106,8 @@ export default function ProductCard({ product }: { product: Product }) {
       </CardFooter>
     </Card>
   )
+}
+
+function encrypt(selectedOption: any) {
+  throw new Error('Function not implemented.')
 }

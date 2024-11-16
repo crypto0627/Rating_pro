@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar"
 import { Progress } from "../../components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs"
+import Navbar from '@/components/Navbar'
 
 // Mock user data
 const user = {
@@ -31,6 +32,7 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto p-4">
+        <Navbar/>
       <Card className="mb-8">
         <CardHeader className="flex flex-row items-center gap-4">
           <Avatar className="w-20 h-20">

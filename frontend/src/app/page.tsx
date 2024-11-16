@@ -10,6 +10,7 @@ import { useEthersProvider, useEthersSigner } from '../utils/viemEthersConverter
 import Banner from '../components/Banner'
 import StoreInfo from '../components/StoreInfo'
 import ProductCard from '../components/ProductCard'
+import Navbar from '@/components/Navbar'
 
 const products = [
   { id: 1, name: 'Smart Watch', price: 199.99, rating: 4.5, image: '/placeholder.svg?height=200&width=200' },
@@ -169,12 +170,10 @@ export default function LandingPage() {
   const options = ['Patrick Star', 'Sandy Cheeks', 'Mr. Krabs']
 
   return (
-      <main className='fixed w-full flex flex-col items-center justify-center p-10 bg-gradient-to-b'>
-        <div>
-          <h1 className='text-3xl font-bold py-5'>Rating PRO</h1>
-        </div>
-
-        <div className="flex flex-col min-h-screen">
+      <main className='flex flex-col '>
+        <div className="flex flex-col min-h-screen p-10">
+        <Navbar />
+        <div className='items-center justify-center'>
           <Banner text="Welcome to our Product Rating System" />
           <div className="flex-grow p-6">
             <div className="flex justify-between items-center mb-6">
@@ -187,6 +186,7 @@ export default function LandingPage() {
               ))}
             </div>
           </div>
+        </div>
         </div>
       </main>
   )
