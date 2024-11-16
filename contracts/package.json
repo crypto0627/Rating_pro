@@ -6,13 +6,7 @@
     "test": "hardhat test",
     "clean": "rimraf ./artifacts ./cache ./coverage ./types ./coverage.json ./deployments/localfhenix",
     "compile": "hardhat compile",
-    "task:deploy": "hardhat deploy",
-    "task:addCount": "hardhat task:addCount",
-    "task:getCount": "hardhat task:getCount",
-    "task:getFunds": "hardhat task:getFunds",
-    "localfhenix:start": "hardhat localfhenix:start",
-    "localfhenix:stop": "hardhat localfhenix:stop",
-    "faucet": "hardhat task:fhenix:usefaucet"
+    "task:deploy": "hardhat deploy"
   },
   "repository": {
     "type": "git",
@@ -25,7 +19,7 @@
   },
   "homepage": "https://github.com/fhenixprotocol/fhenix-hardhat-example#readme",
   "devDependencies": {
-    "@fhenixprotocol/contracts": "^0.1.0-beta.3",
+    "@fhenixprotocol/contracts": "0.1.0-beta.3",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
     "@nomicfoundation/hardhat-ethers": "^3.0.5",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.10",

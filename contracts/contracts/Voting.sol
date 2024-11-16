@@ -1,108 +1,116 @@
-// SPDX-License-Identifier: BSD-3-Clause-Clear
-// WARNING THIS IS AN EXPERIMENTAL CONTRACT AND IS NOT READY FOR PRODUCTION USE
+// SPDX-License-Identifier: GPL-3.0
 
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.19 < 0.9.0;
 
 import "@fhenixprotocol/contracts/FHE.sol";
 import "@fhenixprotocol/contracts/access/Permissioned.sol";
 
 contract Voting is Permissioned {
-    uint8 internal constant MAX_OPTIONS = 4;
+    struct Product {
+        string name;
+        uint256 price;
+    }
+    euint32 internal EN_ONE = FHE.asEuint32(1);
+    euint32 internal EN_DIV = FHE.asEuint32(2);
+    euint32 internal MAX_RATING = FHE.asEuint32(5);
+    euint32 internal PERCENTAGE = FHE.asEuint32(100);
 
-    // Pre-compute these to prevent unnecessary gas usage for the users
-    // euint16 internal _zero = FHE.asEuint16(0);
-    // euint16 internal _one = FHE.asEuint16(1);
-    euint32 internal _u32Sixteen = FHE.asEuint32(16);
-    euint8[MAX_OPTIONS] internal _encOptions = [FHE.asEuint8(0), FHE.asEuint8(1), FHE.asEuint8(2), FHE.asEuint8(3)];
+    // Product Collection
+    mapping(uint256 => Product) public nftCollection;
+    mapping(address => bool) public openUser;
+    uint256 public nftCount;
 
-    string public proposal;
-    string[] public options;
-    uint public voteEndTime;
-    euint16[MAX_OPTIONS] internal _tally = [FHE.asEuint16(0),FHE.asEuint16(0),FHE.asEuint16(0),FHE.asEuint16(0)]; // Since every vote is worth 1, I assume we can use a 16-bit integer
+    // Store Data
+    euint32 _storePoint;
+    euint32 _storeCount;
 
-    euint8 internal _winningOption;
-    euint16 internal _winningTally;
+    // User Data
+    mapping(address => uint256) internal _points; // user total points
+    mapping(address => euint32) internal _userVoteCount; // already vote amount
+    mapping(address => euint32) internal _userVoteTotalPoints; // total amount*rating
 
-    mapping(address => bool) public voters;
+    // Voting State
+    address public owner;
 
-    mapping(address => euint8) internal _votes;
-
-    bool public finalized;
-
-    constructor(string memory _proposal, string[] memory _options, uint votingPeriod, address[] memory _voters) {
-        require(options.length <= MAX_OPTIONS, "too many options!");
-
-        proposal = _proposal;
-        options = _options;
-        voteEndTime = block.timestamp + votingPeriod;
-
-        for (uint i; i < _voters.length; i++) {
-            voters[_voters[i]] = true;
-        }
+    constructor() {
+        owner = msg.sender;
     }
 
-    function vote(inEuint8 memory voteBytes) public {
-        // require voter to be in the list of voters
-        require(voters[msg.sender]);
-
-        require(block.timestamp < voteEndTime, "voting is over!");
-        require(!FHE.isInitialized(_votes[msg.sender]), "already voted!");
-        require(!finalized, "voting is finalized!");
-
-        euint8 encryptedVote = FHE.asEuint8(voteBytes); // Cast bytes into an encrypted type
-
-        ebool voteValid = _requireValid(encryptedVote);
-
-        _votes[msg.sender] = encryptedVote;
-        _addToTally(encryptedVote, voteValid /* , _one */);
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Caller is not the owner");
+        _;
     }
 
-    function finalize() public {
-        require(voteEndTime < block.timestamp, "voting is still in progress!");
-        require(!finalized, "voting is already finalized!");
-
-        finalized = true;
-
-        _winningOption = _encOptions[0];
-        _winningTally = _tally[0];
-        for (uint8 i = 1; i < options.length; i++) {
-            euint16 newWinningTally = FHE.max(_winningTally, _tally[i]);
-            _winningOption = FHE.select(newWinningTally.gt(_winningTally), _encOptions[i], _winningOption);
-            _winningTally = newWinningTally;
-        }
+    // Add a new Product to the collection
+    function addProduct(string memory name, uint256 price) public onlyOwner {
+        nftCollection[nftCount] = Product(name, price);
+        nftCount += 1;
     }
 
-    function winning() public view returns (uint8, uint16) {
-        require(voteEndTime < block.timestamp, "voting is still in progress!");
-        require(finalized, "voting is not finalized!");
-        return (FHE.decrypt(_winningOption), FHE.decrypt(_winningTally));
+    // Purchase an Product
+    function purchaseProduct(uint256 nftId) public payable {
+        require(nftId < nftCount, "Invalid Product ID");
+        Product memory nft = nftCollection[nftId];
+        require(msg.value >= nft.price, "Insufficient funds to purchase Product");
+        uint256 newPoints = nft.price; // 1 wei per point
+        _points[msg.sender] = _points[msg.sender] + newPoints; // Add points to user's account
     }
 
-    function getUserVote(
-        Permission memory signature
-    ) public view onlyPermitted(signature, msg.sender) returns (bytes memory) {
-    // ) public view onlyPermitted(signature, msg.sender) returns (string memory) {   // for remix compiling
-        require(FHE.isInitialized(_votes[msg.sender]), "no vote found!");
-        return FHE.sealoutput(_votes[msg.sender], signature.publicKey);
+    // Cast a vote
+    function castVote(inEuint32 calldata _rating, inEuint32 calldata _point) public {
+        euint32 rating = FHE.asEuint32(_rating);
+        euint32 points = FHE.asEuint32(_point);
+        euint32 enTotalPoint = FHE.asEuint32(_points[msg.sender]);
+        FHE.req(FHE.gt(MAX_RATING, rating));
+        _userVoteCount[msg.sender] = _userVoteCount[msg.sender] + points;
+        _userVoteTotalPoints[msg.sender] = _userVoteTotalPoints[msg.sender] + points * rating;
+        FHE.req(FHE.gt(enTotalPoint, _calculateVotePoints(_userVoteCount[msg.sender])));
+        
+        _storeCount = _storeCount + points;
+        _storePoint = _storePoint + points*rating;
     }
 
-    function _requireValid(euint8 encryptedVote) internal pure returns (ebool) {
-        // TODO actually check the vote is valid.
-        // Make sure that: (0 <= vote <= options.length)
-        return encryptedVote.lte(FHE.asEuint8(MAX_OPTIONS - 1));
-        //FHE.req(isValid);
+    // Change a vote
+    function changeVote(inEuint32 calldata _rating, inEuint32 calldata _point) public {
+        euint32 rating = FHE.asEuint32(_rating);
+        euint32 points = FHE.asEuint32(_point);
+        FHE.req(FHE.gt(MAX_RATING, rating));
+        euint32 enTotalPoint = FHE.asEuint32( _points[msg.sender]);
+        FHE.req(FHE.gt(enTotalPoint, _calculateVotePoints(points)));
+        _storeCount = _storeCount + points - _userVoteCount[msg.sender];
+        _storePoint = _storePoint + points*rating - _userVoteTotalPoints[msg.sender];
+        _userVoteCount[msg.sender] = points;
+        _userVoteTotalPoints[msg.sender] = points * rating;
+    } 
+
+    // Retrieve vote results
+    function getVoteResults() public view returns (uint32) {
+        return FHE.decrypt(_storePoint * PERCENTAGE / _storeCount);
     }
 
-    function _addToTally(euint8 option, ebool voteValid /* , euint16 amount */) internal {
-        // We don't want to leak the user's vote, so we have to change the tally of every option.
-        // So for example, if the user voted for option 1:
-        // tally[0] = tally[0] + enc(0)
-        // tally[1] = tally[1] + enc(1)
-        // etc ..
-        for (uint8 i = 0; i < options.length; i++) {
-            // euint16 amountOrZero = FHE.select(option.eq(_encOptions[i]), _one, _zero);
-            ebool amountOrZero = option.eq(_encOptions[i]).and(voteValid); // `eq()` result is known to be enc(0) or enc(1)
-            _tally[i] = _tally[i] + amountOrZero.toU16(); // `eq()` result is known to be enc(0) or enc(1)
-        }
+    // Retrieve vote results
+    function setOpenUser(bool _openUser) public {
+        openUser[msg.sender] = _openUser;
+    }
+
+    function getUserVote() public view returns (uint32){
+        require( openUser[msg.sender], "not open");
+        return FHE.decrypt(_storePoint * PERCENTAGE / _storeCount);
+    }
+
+
+    // Helper: Calculate diminishing vote weight
+    function _calculateVoteWeight(inEuint32 calldata _point, address user) internal view returns (euint32) {
+        // Retrieve the number of tickets (votes) the user has already cast
+        euint32 previousVotes = _userVoteCount[user];
+        euint32 points = FHE.asEuint32(_point);
+        // The cost of the next vote increases linearly based on previous votes
+        euint32 voteCost = (points + previousVotes) * points / EN_DIV;
+        return voteCost;
+    }
+    // Helper: Calculate already spent points
+    function _calculateVotePoints(euint32 userVoteCount) internal view returns (euint32) {
+        euint32 userVotePoint = (userVoteCount * userVoteCount + EN_ONE) / EN_DIV;
+        return userVotePoint;
     }
 }
