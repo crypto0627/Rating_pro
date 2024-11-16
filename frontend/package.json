@@ -11,8 +11,11 @@
   },
   "dependencies": {
     "@biomejs/biome": "^1.7.0",
+    "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.2",
+    "@radix-ui/react-progress": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-tabs": "^1.1.1",
     "@rainbow-me/rainbowkit": "2.0.5",
     "@tanstack/react-query": "^5.29.2",
     "@types/node": "20.12.7",

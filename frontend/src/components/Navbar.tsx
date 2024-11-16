@@ -2,11 +2,15 @@
 import type { FC } from 'react'
 import Image from 'next/image'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
+import Link from 'next/link'
 
 const Navbar: FC = () => {
   return (
     <>
-      <div className='fixed right-5 top-4 z-50 md:right-10 md:top-10'>
+      <div className='fixed right-5 top-4 z-50 md:right-10 md:top-10 flex space-x-4'>
+        <Link className='rounded-xl border border-slate-500 bg-gradient-to-b from-zinc-800/30 to-zinc-500/50 p-2 hover:bg-zinc-800/50' href='/profile'>
+          Profile
+        </Link>
         <ConnectButton.Custom>
           {({ account, chain, openAccountModal, openChainModal, openConnectModal, mounted }) => {
             const connected = mounted && account && chain

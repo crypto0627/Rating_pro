@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 
 export default function StoreInfo() {
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full min-w-screen">
       <CardHeader>
         <CardTitle>TechGadgets Store</CardTitle>
         <CardDescription>Your one-stop shop for the latest tech</CardDescription>
