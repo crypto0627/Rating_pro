@@ -13,8 +13,8 @@ Create a decentralized, anonymous and trustworthy rating system, allowing consum
 
 ### Our contracts address and Demo link
 - FHENIX contract address: https://explorer.helium.fhenix.zone/address/0xb8E6595525Dc4cF964efD83906329a64cBcd06F5
-- Video Demo Link: https://youtu.be/aKvaIuCgeR4
-
+- Video demo link: https://youtu.be/aKvaIuCgeR4
+- Project website: https://rating-pro-six.vercel.app/
 ### Technology
 
 - [Fhenix](https://ethglob.al/94dzc) : Fhenix is an L2 on ETH that uses Fully Homomorphic Encryption (FHE) to provide confidentiality.
