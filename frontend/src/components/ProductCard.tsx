@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { RatingComponent } from './RatingComponent'
 import { Button } from "./ui/button"
 import { Textarea } from "./ui/textarea"
+import { Input } from "./ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "./ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
 import { ethers } from 'ethers'
@@ -22,31 +22,28 @@ interface Product {
 }
 
 export default function ProductCard({ product }: { product: Product }) {
-  const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
+  const [quantity, setQuantity] = useState(0)
 
   const { data: blockNumberData } = useBlockNumber({ watch: true })
   const chainId = useChainId()
 
   // Can we get a provider and signer please?
   const signer = useEthersSigner()
-  // console.log('Signer:', signer)
   const provider = useEthersProvider()
-  // console.log('Provider:', provider)
 
   // Create a contract instance
   const votingContract = new ethers.Contract(votingAddress, votingAbi['abi'], provider)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Submitted rating:', rating)
+    console.log('Submitted quantity:', quantity)
     console.log('Submitted comment:', comment)
     console.log('Rated product ID:', product.id)
-    setRating(rating)
-    setComment(comment)
-    const encryptedVote = await encrypt(selectedOption)
-    console.log(encryptedVote);
-    await votingContract.connect(signer).vote(encryptedVote)
+    // const encryptedVote = await encrypt(selectedOption)
+    // console.log(encryptedVote);
+    //call the purchaseProduct function with sending ether
+    await votingContract.connect(signer).purchaseProduct(0, quantity, { value: quantity * product.price })
   }
 
   return (
@@ -63,31 +60,27 @@ export default function ProductCard({ product }: { product: Product }) {
       <CardContent className="flex-grow">
         <CardTitle>{product.name}</CardTitle>
         <CardDescription>Price: ${product.price}</CardDescription>
-        <div className="mt-2">
-          <RatingComponent totalStars={5} initialRating={product.rating} readOnly />
-          <span className="ml-2 text-sm text-gray-600">({product.rating})</span>
-        </div>
       </CardContent>
       <CardFooter>
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="w-full">Rate</Button>
+            <Button className="w-full">Purchase</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Rate {product.name}</DialogTitle>
-              <DialogDescription>Please provide your rating and feedback for this product</DialogDescription>
+              <DialogTitle> {product.name}</DialogTitle>
+              <DialogDescription></DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="rating" className="text-sm font-medium text-gray-700">
-                  Your Rating
+                <label htmlFor="quantity" className="text-sm font-medium text-gray-700">
+                  How many would you like to purchase?
                 </label>
-                <RatingComponent onChange={setRating} />
+                <Input type="number" id="quantity" value={quantity} onChange={(e) => setQuantity(parseInt(e.target.value))} />
               </div>
               <div className="space-y-2">
                 <label htmlFor="comment" className="text-sm font-medium text-gray-700">
-                  Your Review
+                  Please share your experience...
                 </label>
                 <Textarea
                   id="comment"
@@ -98,7 +91,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 />
               </div>
               <Button type="submit" className="w-full">
-                Submit Rating
+                Purchase
               </Button>
             </form>
           </DialogContent>
@@ -106,8 +99,4 @@ export default function ProductCard({ product }: { product: Product }) {
       </CardFooter>
     </Card>
   )
-}
-
-function encrypt(selectedOption: any) {
-  throw new Error('Function not implemented.')
 }
